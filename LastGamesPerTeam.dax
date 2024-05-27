@@ -1,0 +1,20 @@
+﻿//DEFINE
+//	VAR allcombinations = GENERATE(
+//		PremierLeagueTeams,
+//		TOPN(5, MergedStatistics, MergedStatistics[Date], DESC)
+//	)
+//
+//
+//EVALUATE
+//	allcombinations
+//// Only Arsenal games
+EVALUATE
+	CALCULATETABLE(
+		TOPN(5, MergedStatistics, MergedStatistics[Date], DESC),
+		PremierLeagueClubs[Club] = "Leicester"
+	)
+
+
+//EVALUATE
+//	DISTINCT(MergedStatistics[Club])
+//	SELECTCOLUMNS(MergedStatistics, "Team", MergedStatistics[Club])
