@@ -1,0 +1,37 @@
+﻿
+DEFINE
+	VAR _SeasonFilter = TREATAS({"2023-2024"}, MatchHistoryByClub[Season])	
+	// RANKING BY Only 1 criteria: Points
+	MEASURE LeagueMetrics[Table Position] = RANKX(ALL(MatchHistoryByClub[Club]), [Points])
+	// RANKING BY 2 criterias: Points, then Goal Difference as a secondary criteria to avoid ties
+	/*
+		Because RANKX can rank based on a single expression,
+		we use a combination of HIGH and LOW where HIGH is shifted so that the lowest HIGH is higher than the highest LOW.
+		This can be accomplished by using HIGH_CRITERIA * MAX ( LOW_CRITERIA ) + LOW_CRITERIA as the expression for the ranking.
+		This way, a value of HIGH_CRITERIA equal to 1 is still larger than the maximum LOW_CRITERIA.
+		With equal values for HIGH_CRITERIA, the ranking is based on LOW_CRITERIA.
+		In this case, we hardcore 100 as a workaround of getting "Max([Goal Difference]), since we are restricted to calculate Maximum GD
+		on Measure in this context, also Normally worst GD on a campain round -45 to -60 and the worst cummulative GD is around -292 of
+		Sunderland across all Premier League History" 
+	*/
+
+	MEASURE LeagueMetrics[Table Position GD] = RANKX(ALL(MatchHistoryByClub[Club]), [Points] * ABS((10000 + [Goal Difference])))
+
+
+EVALUATE
+	SUMMARIZECOLUMNS(
+		MatchHistoryByClub[Club],
+		_SeasonFilter,
+		"Position", [Table Position],
+		"PTS", [Points],
+		"GD", [Goal Difference]
+	)
+	
+EVALUATE
+	SUMMARIZECOLUMNS(
+		MatchHistoryByClub[Club],
+		_SeasonFilter,
+		"Position", [Table Position GD],
+		"PTS", [Points],
+		"GD", [Goal Difference]
+	)
