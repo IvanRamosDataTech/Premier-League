@@ -1,0 +1,20 @@
+﻿// Example of how to get matches based on matchweek
+DEFINE
+	VAR seasonFilter = TREATAS({"2001-2002"}, MatchHistoryByClub[Season])
+	VAR matchweekFilter = TREATAS({15}, MatchHistoryByClub[MatchWeek])
+
+EVALUATE
+	
+	SELECTCOLUMNS(
+		CALCULATETABLE(MatchHistoryByClub, seasonFilter, matchweekFilter, MatchHistoryByClub[Played As] = "Home"),
+		MatchHistoryByClub[MatchWeek],
+		MatchHistoryByClub[Date],
+		MatchHistoryByClub[Club],
+		MatchHistoryByClub[Rival],
+		MatchHistoryByClub[Goals Favor],
+		MatchHistoryByClub[Goals Against]
+	)
+	
+	ORDER BY MatchHistoryByClub[Date]
+		   
+	 
