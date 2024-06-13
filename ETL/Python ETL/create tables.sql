@@ -1,8 +1,12 @@
-CREATE TABLE public."MatchHistory"
+-- Table: public.match_history
+
+DROP TABLE IF EXISTS public.match_history;
+
+CREATE TABLE public.match_history
 (
     "Season" character(9),
     "MatchWeek" integer NOT NULL DEFAULT 1,
-    "Date" date NOT NULL,
+    "Date" character varying(20) NOT NULL,
     "Time" character varying(20),
     "HomeTeam" character varying NOT NULL,
     "AwayTeam" character varying NOT NULL,
@@ -12,7 +16,7 @@ CREATE TABLE public."MatchHistory"
     "HalfTimeHomeTeamGoals" smallint,
     "HalfTimeAwayTeamGoals" smallint,
     "HalfTimeResult" "char",
-    "Referee" character varying(15),
+    "Referee" character varying(50),
     "HomeTeamShots" smallint,
     "AwayTeamShots" smallint,
     "HomeTeamShotsOnTarget" smallint,
@@ -44,8 +48,8 @@ CREATE TABLE public."MatchHistory"
     "AwayTeamPoints" smallint NOT NULL
 );
 
-ALTER TABLE IF EXISTS public."MatchHistory"
+ALTER TABLE IF EXISTS public.match_history
     OWNER to admin;
 
-COMMENT ON TABLE public."MatchHistory"
+COMMENT ON TABLE public.match_history
     IS 'All matches in Premier League History';
