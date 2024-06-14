@@ -1,10 +1,13 @@
+import constants
+import requests
+import pandas as pd
+
+
 # Extract:  Get data from website 
+
+season_frame = pd.read_csv(constants.CSV_SOURCE_URL)
 
 # Transform: 
 
 
-list = [5,62,634,7,8]
 
-for item in list:
-    item += 1000
-    print(f"this is {item}")
