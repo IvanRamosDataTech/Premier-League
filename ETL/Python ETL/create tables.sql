@@ -1,3 +1,9 @@
+-- Postgresql comes with dateformat as MDY by default (US style)
+-- Specify euro style for date formats to avoid "values out of range". Format changes to ISO, DMY
+SET datestyle = "ISO, DMY";
+-- You could also specify by running:
+-- set datestyle = euro;
+
 -- Table: public.match_history
 
 DROP TABLE IF EXISTS public.match_history;
@@ -6,7 +12,7 @@ CREATE TABLE public.match_history
 (
     "Season" character(9),
     "MatchWeek" integer NOT NULL DEFAULT 1,
-    "Date" character varying(20) NOT NULL,
+    "Date" date NOT NULL,
     "Time" character varying(20),
     "HomeTeam" character varying NOT NULL,
     "AwayTeam" character varying NOT NULL,
