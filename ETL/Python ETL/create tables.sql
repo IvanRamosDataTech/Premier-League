@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS public.match_history;
 
 CREATE TABLE public.match_history
 (
+    "MatchID" character varying(60) NOT NULL,
     "Season" character(9),
     "MatchWeek" integer NOT NULL DEFAULT 1,
     "Date" date NOT NULL,

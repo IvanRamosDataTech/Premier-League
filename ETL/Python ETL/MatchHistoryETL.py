@@ -61,11 +61,14 @@ website_frame.rename(columns = {"FTHG": "FullTimeHomeTeamGoals",
                                "Avg<2.5": "MarketAvgUnder2.5Goals"},
                    inplace = True)
 
+# Add MatchID column
+website_frame.insert(0, "MatchID", constants.CURRENT_SEASON_TAG + "_" + website_frame["HomeTeam"] + "_" + website_frame["AwayTeam"])
+
 # Add season column
-website_frame.insert(0, "Season", constants.CURRENT_SEASON_TAG)
+website_frame.insert(1, "Season", constants.CURRENT_SEASON_TAG)
 
 # Add MatchWeek value
-website_frame.insert(1, "MatchWeek", constants.DEFAULT_MATCHWEEK)
+website_frame.insert(2, "MatchWeek", constants.DEFAULT_MATCHWEEK)
 
 # Add Points columns
 conditions = [
@@ -113,5 +116,6 @@ new_entries = website_frame.compare(postgres_frame)
 
 # Pending step... Ideally we would insert new rows found in website_frame into postgresql 
 
+website_frame
 
 
