@@ -52,7 +52,8 @@ CREATE TABLE public.match_history
     "MarketAvgOver2.5Goals" real,
     "MarketAvgUnder2.5Goals" real,
     "HomeTeamPoints" smallint NOT NULL,
-    "AwayTeamPoints" smallint NOT NULL
+    "AwayTeamPoints" smallint NOT NULL,
+    PRIMARY KEY ("MatchID")
 );
 
 ALTER TABLE IF EXISTS public.match_history
