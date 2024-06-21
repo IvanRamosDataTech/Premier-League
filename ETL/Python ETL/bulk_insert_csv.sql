@@ -2,6 +2,9 @@
 -- and proceed with bulk inserts. You can perform this by typing following command:
 
 --docker cp dataset/PremierLeague.csv container-pg:/home/PremierLeague.csv
+SET datestyle = "ISO, DMY";
+
+TRUNCATE TABLE match_history;
 
 COPY match_history
 FROM '/home/PremierLeague.csv'
