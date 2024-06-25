@@ -25,20 +25,11 @@ pd.set_option('display.max_rows', 100)
 pd.set_option('display.max_columns', 50)
 
 
-# In[2]:
-
+# Extract from website
 
 website_frame = pd.read_csv(constants.CSV_SOURCE_URL)
 
-
-# In[3]:
-
-
-website_frame.shape
-
-
-# In[4]:
-
+# Transform
 
 # Remove unwanted columns
 
@@ -50,9 +41,6 @@ unwanted_cols = ["Div", "BWH", "BWD", "BWA", "IWH", "IWD", "IWA", "PSH", "PSD", 
                  "MaxCAHA", "AvgCAHH", "AvgCAHA"]
 
 website_frame.drop(columns = unwanted_cols, inplace = True)
-
-
-# In[5]:
 
 
 # Rename columns
@@ -92,23 +80,13 @@ website_frame.rename(columns = {"FTHG": "FullTimeHomeTeamGoals",
                    inplace = True)
 
 
-# In[6]:
-
-
 # Add MatchID column
 
 website_frame.insert(0, "MatchID", constants.CURRENT_SEASON_TAG + "_" + website_frame["HomeTeam"] + "_" + website_frame["AwayTeam"])
 
-
-# In[7]:
-
-
 # Add season column
 
 website_frame.insert(1, "Season", constants.CURRENT_SEASON_TAG)
-
-
-# In[8]:
 
 
 def calculate_matchweek(cursor):
@@ -131,9 +109,6 @@ def calculate_matchweek(cursor):
         return constants.DEFAULT_MATCHWEEK
 
 
-# In[17]:
-
-
 # Stablish a connection to Database data source and fetch last game so we can know current matchweek
 
 try:
@@ -151,24 +126,14 @@ else:
     print (f'Connection to database "{constants.DB_NAME}" stablished. Listening at port {constants.DB_PORT}')
 
 
-# In[18]:
-
-
 # Find out current season matchweek
 cursor = connection.cursor()
 next_matchweek = calculate_matchweek(cursor)
 
 
-# In[ ]:
-
-
 # Add MatchWeek column
 
 website_frame.insert(2, "MatchWeek", next_matchweek)
-
-
-# In[12]:
-
 
 # Add Points columns
 
@@ -183,15 +148,6 @@ away_points = [ 0, 1, 3]
 
 website_frame["HomeTeamPoints"] = np.select(conditions, home_points)
 website_frame["AwayTeamPoints"] = np.select(conditions, away_points)
-
-
-# In[13]:
-
-
-website_frame.head()
-
-
-# In[14]:
 
 
 def generate_upsert_stmn(table_name, conflict_column, dataframe):
@@ -245,21 +201,10 @@ def generate_upsert_stmn(table_name, conflict_column, dataframe):
     return sql_statement
 
 
-# In[ ]:
-
-
 insert_statement = generate_upsert_stmn("public.match_history", "MatchID", website_frame)
 print(insert_statement)
 
 
-# In[20]:
-
-
+# !! Getting error here
 cursor.execute(insert_statement)
-
-
-# In[ ]:
-
-
-
 
