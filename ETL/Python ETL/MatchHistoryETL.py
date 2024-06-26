@@ -20,16 +20,89 @@ import numpy as np
 import psycopg2
 import csv
 import datetime
+from psycopg2 import sql
 
 pd.set_option('display.max_rows', 100)
 pd.set_option('display.max_columns', 50)
 
 
-# Extract from website
+# In[2]:
+
+
+def calculate_matchweek(conn):
+    """
+        Finds out last registered matchweek for current season in Database. 
+        Returns last registerered matchweek plus one. If there's any problem 
+        with databse or season has not even started, then returns default matchweek "1"
+    """
+    try:
+        cursor = conn.cursor()
+        matchweek_query = f"SELECT MAX(\"MatchWeek\") FROM public.match_history WHERE \"Season\" = '{constants.CURRENT_SEASON_TAG}'"
+        cursor.execute(matchweek_query)
+        matchweek_result = cursor.fetchone()
+        if matchweek_result[0] is None:
+            return constants.DEFAULT_MATCHWEEK
+        else:
+            # Next matchweek
+            return matchweek_result[0] + 1
+    except psycopg2.Error as e:
+        print ("An error ocurred in database")
+        print (e)
+        return constants.DEFAULT_MATCHWEEK
+    finally:
+        cursor.close()
+
+
+# In[3]:
+
+
+def upsert_query(to_table, reference_column, dataframe):
+    """
+        Generates a Composed SQL object that contains all necessary SQL code to 
+        perform upserts into a postgresql table from dataframe as source.
+        If row attempted to insert is already present in database, then engine
+        will skip insertion. 
+
+        Input:
+            to_table - target table name in format 'schema.table_name' to generate inserts 
+            reference_column - Column name of your table that is considered PK to avoid overwritings
+            dataframe - pandas dataframe containing all rows to be inserted
+    """
+    date_config = sql.SQL('SET datestyle = "ISO, DMY"; ')
+    
+    insert_header = sql.SQL("INSERT INTO " + to_table + " ({fields})").format(
+        fields = sql.SQL(',').join([sql.Identifier(column) for column in dataframe.columns])
+    )
+    
+    values_array = []
+    for row in dataframe.iterrows():
+        values_array.append(sql.SQL(" ({values})").format(
+            values = sql.SQL(',').join([sql.Literal(value) for value in row[1].values])
+        ))
+    
+    insert_values = sql.SQL(' VALUES ') + sql.SQL(',').join(values_array)
+    
+    insert_condition = sql.SQL(" ON CONFLICT({conflict_col}) DO NOTHING").format(
+        conflict_col = sql.Identifier(reference_column)
+    )
+    
+    insert_statement = date_config + insert_header + insert_values + insert_condition
+   
+    return insert_statement
+
+
+# In[4]:
+
+
+# -- EXTRACTION
 
 website_frame = pd.read_csv(constants.CSV_SOURCE_URL)
 
-# Transform
+
+# In[6]:
+
+
+# -- TRANSFORMATION
 
 # Remove unwanted columns
 
@@ -41,6 +114,9 @@ unwanted_cols = ["Div", "BWH", "BWD", "BWA", "IWH", "IWD", "IWA", "PSH", "PSD", 
                  "MaxCAHA", "AvgCAHH", "AvgCAHA"]
 
 website_frame.drop(columns = unwanted_cols, inplace = True)
+
+
+# In[7]:
 
 
 # Rename columns
@@ -80,33 +156,23 @@ website_frame.rename(columns = {"FTHG": "FullTimeHomeTeamGoals",
                    inplace = True)
 
 
+# In[8]:
+
+
 # Add MatchID column
 
 website_frame.insert(0, "MatchID", constants.CURRENT_SEASON_TAG + "_" + website_frame["HomeTeam"] + "_" + website_frame["AwayTeam"])
+
+
+# In[9]:
+
 
 # Add season column
 
 website_frame.insert(1, "Season", constants.CURRENT_SEASON_TAG)
 
 
-def calculate_matchweek(cursor):
-    """
-        Finds out last registered matchweek for current season in Database. 
-        Returns last registerered matchweek plus one. If there's any problem 
-        with databse or season has not even started, then returns default matchweek "1"
-    """
-    try:
-        matchweek_query = f"SELECT MAX(\"MatchWeek\") FROM public.match_history WHERE \"Season\" = '{constants.CURRENT_SEASON_TAG}'"
-        cursor.execute(matchweek_query)
-        matchweek_result = cursor.fetchone()
-        if matchweek_result[0] is None:
-            return constants.DEFAULT_MATCHWEEK
-        else:
-            return matchweek_result[0] + 1
-    except psycopg2.Error as e:
-        print ("An error ocurred in database")
-        print (e)
-        return constants.DEFAULT_MATCHWEEK
+# In[10]:
 
 
 # Stablish a connection to Database data source and fetch last game so we can know current matchweek
@@ -126,14 +192,23 @@ else:
     print (f'Connection to database "{constants.DB_NAME}" stablished. Listening at port {constants.DB_PORT}')
 
 
+# In[11]:
+
+
 # Find out current season matchweek
-cursor = connection.cursor()
-next_matchweek = calculate_matchweek(cursor)
+next_matchweek = calculate_matchweek(connection)
+
+
+# In[12]:
 
 
 # Add MatchWeek column
 
 website_frame.insert(2, "MatchWeek", next_matchweek)
+
+
+# In[13]:
+
 
 # Add Points columns
 
@@ -150,61 +225,42 @@ website_frame["HomeTeamPoints"] = np.select(conditions, home_points)
 website_frame["AwayTeamPoints"] = np.select(conditions, away_points)
 
 
-def generate_upsert_stmn(table_name, conflict_column, dataframe):
-    """
-        Generates a sql statement for Postgresql SQL dialect equivalent to UPSERT operation.
-        This is achieved by writing standard INSERT clause along with ON CONFLICT
-        Resulting statement adopts posture of skipping insertions on rows that conflict with
-        conflict_column field
 
-        dataframe - source dataframe which contains data to be inserted
-        conflict_column - collumn considered to avoid any duplications
-        table_name - Schema Table name to generate insert values
-    """
-    def entitle_value(value):
-        if type(value) is str:
-            return "'" + value + "'"
-        # Return stringified version of anything else (Numbers, Dates, Floats)
-        return str(value)
-
-    def generate_insert_stmn(table_name, dataframe):
-        entitled_headers = [ '"' + column_name + '"' for column_name in  dataframe.columns ]
-        return "INSERT INTO " + table_name + " (" + ", ".join(entitled_headers) + ") "
-    
-    def generate_values_stmn(row):
-        values = row[1].values
-        values_stmt = " ("
-        value_idx = 1
-        for value in values:
-            values_stmt += entitle_value(value)
-            value_idx += 1
-            # Skip last comma in statement
-            if value_idx <= len(values):
-                values_stmt +=  ", "
-    
-        values_stmt +=")"
-        return values_stmt
-
-        
-    sql_statement = ""
-    sql_statement += generate_insert_stmn(table_name, dataframe)
-    sql_statement += "VALUES "
-    value_idx = 1
-    for row in dataframe.iterrows():
-        sql_statement += generate_values_stmn(row)
-        value_idx += 1
-        # Skip comma on last row
-        if value_idx <= dataframe.shape[0]:
-            sql_statement += ", "
-        
-    sql_statement +=" ON CONFLICT (\"" + conflict_column + "\")  DO NOTHING"
-    return sql_statement
+# In[ ]:
 
 
-insert_statement = generate_upsert_stmn("public.match_history", "MatchID", website_frame)
-print(insert_statement)
+# -- LOAD
+
+# Keep up to date postgresql database
+
+insert_statement = upsert_query("public.match_history", "MatchID", website_frame)
 
 
-# !! Getting error here
-cursor.execute(insert_statement)
+# In[18]:
+
+
+try:
+    with connection.cursor() as cursor:
+        cursor.execute(insert_statement)
+        rowsAffected = cursor.rowcount
+        connection.commit()
+except psycopg2.Error as e:
+    print (f'Can not connect to the postgress database "{constants.DB_NAME}". Make sure database server is running')
+    print (e)
+else:
+    print (f"New Rows in Match History: {rowsAffected}")
+finally:
+    cursor.close()
+
+
+# In[ ]:
+
+
+# Keep up to date master dataset
+
+
+# In[ ]:
+
+
+# Keep up to date Kaggle dataset
 
