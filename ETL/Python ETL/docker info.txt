@@ -1,0 +1,40 @@
+Run the docker compose file
+A docker compose file is a way to define and run multi-container Docker applications.
+It’s like a blueprint for your application, telling Docker what images to use and how to connect them together.
+This will save time and hassle because you can set everything up in one place and start everything with a single command.
+It’s written in yaml format and has sections for defining the version and the different services that make up the application.
+Each service can be customized with options like images, environment variables, volumes, ports, and links to other services.
+
+For our needs, we require a PostgreSQL and a pgAdmin container and link them together, all those instructions are specified in docker-compose.yml file
+
+Version
+Specifies the version of the docker compose file format.
+
+Services
+Defines the services (i.e., containers) that make up the application.
+In this case, we have two services: postgres and pgadmin.
+
+Images
+Specifies the docker image to be used for the container.
+For the postgres service, we are using the postgres image, which is the official PostgreSQL image. For the pgadmin service, we are using the dpage/pgadmin4 image.
+
+Environments
+Sets environment variables for the container. In the postgres service, we are setting the POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB variables, which are used to configure the PostgreSQL database. In the pgadmin service, we are setting the PGADMIN_DEFAULT_EMAIL and PGADMIN_DEFAULT_PASSWORD variables, which are used to set the default email and password for the pgAdmin login.
+
+Volumes
+Mounts a volume (i.e., persistent storage) for the container. In the postgres service, we are mounting a volume named postgres_data at the /var/lib/postgresql/data directory, which is where the PostgreSQL data is stored. This allows the data to persist even if the container is stopped or removed.
+
+Ports
+Exposes a container’s port to the host. In the postgres service, we are exposing the default PostgreSQL port (5432) on the host. In the pgadmin service, we are exposing port 80 on the host.
+
+Depends on
+Specifies that a service depends on another service. In the pgadmin service, we are specifying that it depends on the postgres service, which means that the postgres service must be started before the pgadmin service.
+
+Save the file somewhere on your computer, open a terminal and navigate to the directory where your docker compose file is located. Run the following command to start up the application:
+
+docker-compose up -d
+The up subcommand creates and starts the containers for the services defined in the compose file. The -d flag stands for "detached mode," which means that the containers will be started in the background and will not be attached to the current terminal.
+
+
+
+
