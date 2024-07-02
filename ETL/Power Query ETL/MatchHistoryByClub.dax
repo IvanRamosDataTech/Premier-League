@@ -1,0 +1,46 @@
+MatchHistoryByClub = 
+    /* Purpose of this table is to unify results of teams playing as home and away stadiums.
+       The result set is a table with subset of desired statistics where first column "Team" is our main grouping
+       parameter for further transformations. */
+        VAR HomeStatistics = SELECTCOLUMNS(MatchHistory,
+                                        "Season", MatchHistory[Season],
+                                        "MatchWeek", MatchHistory[MatchWeek],
+                                        "Date", MatchHistory[Date],
+                                        "Played As", "Home",
+										"Club", MatchHistory[HomeTeam],
+										"Points", MatchHistory[HomeTeamPoints],
+										"Goals Favor", MatchHistory[FullTimeHomeTeamGoals],
+                                        "Goals Against", MatchHistory[FullTimeAwayTeamGoals],
+                                        "Rival", MatchHistory[AwayTeam],
+                                        "YellowCards", MatchHistory[HomeTeamYellowCards],
+                                        "RedCards", MatchHistory[HomeTeamRedCards],
+                                        "Win", IF(MatchHistory[FullTimeResult] = "H", 1, 0),
+                                        "Lose", IF(MatchHistory[FullTimeResult] = "A", 1, 0),
+                                        "Draw", IF(MatchHistory[FullTimeResult] = "D", 1, 0),
+                                        "Result", SWITCH(MatchHistory[FullTimeResult], "H", "W", "D", "D", "A", "L")
+        )
+
+        VAR AwayStatistics = SELECTCOLUMNS(MatchHistory,
+                                        "Season", MatchHistory[Season],
+                                        "MatchWeek", MatchHistory[MatchWeek],
+                                        "Date", MatchHistory[Date],
+                                        "Played As", "Away",
+										"Club", MatchHistory[AwayTeam],
+										"Points", MatchHistory[AwayTeamPoints],
+										"Goals Favor", MatchHistory[FullTimeAwayTeamGoals],
+                                        "Goals Against", MatchHistory[FullTimeHomeTeamGoals],
+                                        "Rival", MatchHistory[HomeTeam],
+                                        "YellowCards", MatchHistory[AwayTeamYellowCards],
+                                        "RedCards", MatchHistory[AwayTeamRedCards],
+                                        "Win", IF(MatchHistory[FullTimeResult] = "A", 1, 0),
+                                        "Lose", IF(MatchHistory[FullTimeResult] = "H", 1, 0),
+                                        "Draw", IF(MatchHistory[FullTimeResult] = "D", 1, 0),
+                                        "Result", SWITCH(MatchHistory[FullTimeResult], "H", "L", "D", "D", "A", "W")
+        )
+
+        
+
+    /* LEARNING NOTE: Data Lineage is present here as Team column in both HomeStatistics & AwayStatistics share data from same source table 'PremierLeague' that's way is not possible to perform natural joins. Instead, we splited data into home and away statistics and then decided to union both. */
+
+     RETURN UNION(HomeStatistics, AwayStatistics)
+	 
