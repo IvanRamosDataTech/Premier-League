@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 # In case iPython does not find our personalized modules and we want to import them manually
@@ -21,12 +21,13 @@ import psycopg2
 import csv
 import datetime
 from psycopg2 import sql
+import csv
 
 pd.set_option('display.max_rows', 100)
 pd.set_option('display.max_columns', 50)
 
 
-# In[2]:
+# In[ ]:
 
 
 def calculate_matchweek(conn):
@@ -53,7 +54,7 @@ def calculate_matchweek(conn):
         cursor.close()
 
 
-# In[3]:
+# In[ ]:
 
 
 def upsert_query(to_table, reference_column, dataframe):
@@ -91,7 +92,7 @@ def upsert_query(to_table, reference_column, dataframe):
     return insert_statement
 
 
-# In[4]:
+# In[ ]:
 
 
 # -- EXTRACTION
@@ -99,7 +100,7 @@ def upsert_query(to_table, reference_column, dataframe):
 website_frame = pd.read_csv(constants.CSV_SOURCE_URL)
 
 
-# In[6]:
+# In[ ]:
 
 
 # -- TRANSFORMATION
@@ -116,7 +117,7 @@ unwanted_cols = ["Div", "BWH", "BWD", "BWA", "IWH", "IWD", "IWA", "PSH", "PSD", 
 website_frame.drop(columns = unwanted_cols, inplace = True)
 
 
-# In[7]:
+# In[ ]:
 
 
 # Rename columns
@@ -156,7 +157,7 @@ website_frame.rename(columns = {"FTHG": "FullTimeHomeTeamGoals",
                    inplace = True)
 
 
-# In[8]:
+# In[ ]:
 
 
 # Add MatchID column
@@ -164,7 +165,7 @@ website_frame.rename(columns = {"FTHG": "FullTimeHomeTeamGoals",
 website_frame.insert(0, "MatchID", constants.CURRENT_SEASON_TAG + "_" + website_frame["HomeTeam"] + "_" + website_frame["AwayTeam"])
 
 
-# In[9]:
+# In[ ]:
 
 
 # Add season column
@@ -172,7 +173,7 @@ website_frame.insert(0, "MatchID", constants.CURRENT_SEASON_TAG + "_" + website_
 website_frame.insert(1, "Season", constants.CURRENT_SEASON_TAG)
 
 
-# In[10]:
+# In[ ]:
 
 
 # Stablish a connection to Database data source and fetch last game so we can know current matchweek
@@ -192,14 +193,14 @@ else:
     print (f'Connection to database "{constants.DB_NAME}" stablished. Listening at port {constants.DB_PORT}')
 
 
-# In[11]:
+# In[ ]:
 
 
 # Find out current season matchweek
 next_matchweek = calculate_matchweek(connection)
 
 
-# In[12]:
+# In[ ]:
 
 
 # Add MatchWeek column
@@ -207,7 +208,7 @@ next_matchweek = calculate_matchweek(connection)
 website_frame.insert(2, "MatchWeek", next_matchweek)
 
 
-# In[13]:
+# In[ ]:
 
 
 # Add Points columns
@@ -225,7 +226,6 @@ website_frame["HomeTeamPoints"] = np.select(conditions, home_points)
 website_frame["AwayTeamPoints"] = np.select(conditions, away_points)
 
 
-
 # In[ ]:
 
 
@@ -236,7 +236,7 @@ website_frame["AwayTeamPoints"] = np.select(conditions, away_points)
 insert_statement = upsert_query("public.match_history", "MatchID", website_frame)
 
 
-# In[18]:
+# In[ ]:
 
 
 try:
@@ -257,6 +257,26 @@ finally:
 
 
 # Keep up to date master dataset
+try:
+    with connection.cursor() as cursor:
+        date_config = sql.SQL('SET datestyle = "ISO, DMY"; ')
+        select_statement = sql.SQL("SELECT * FROM public.match_history")
+        final_statement = date_config + select_statement
+        cursor.execute(final_statement)
+        results = cursor.fetchall()
+        with(open(constants.MASTER_CSV_URL, mode='w',newline="") as file):
+            writer = csv.writer(file)
+            # write column names
+            writer.writerow([column_description[0] for column_description in cursor.description])
+            writer.writerows(results)
+except psycopg2.Error as e:
+    print (f'Can not connect to the postgress database "{constants.DB_NAME}". Make sure database server is running')
+    print (e)
+else:
+    print (f"Rows in Master CSV Dataset: {cursor.rowcount}")
+finally:
+    cursor.close()
+            
 
 
 # In[ ]:
