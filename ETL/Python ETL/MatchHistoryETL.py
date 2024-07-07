@@ -19,9 +19,23 @@ import pandas as pd
 import numpy as np
 import psycopg2
 import csv
+import os
+from dotenv import load_dotenv
+from pathlib import Path
 
 pd.set_option('display.max_rows', 100)
 pd.set_option('display.max_columns', 50)
+
+config_path = Path('configs/.env')
+load_dotenv(dotenv_path=config_path)
+
+
+# In[ ]:
+
+
+APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT')
+APP_VERSION = os.getenv('APP_VERSION')
+print(f"Running Premier League ETL process Environment: {APP_ENVIRONMENT} version: {APP_VERSION}")
 
 
 # In[ ]:
@@ -109,20 +123,25 @@ website_frame.insert(1, "Season", constants.CURRENT_SEASON_TAG)
 
 
 # Stablish a connection to Database data source and fetch last game so we can know current matchweek
+DB_SERVER = os.getenv('DB_SERVER')
+DB_PORT = os.getenv('DB_PORT')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
 
 try:
     connection = psycopg2.connect(
-        host = constants.DB_SERVER,
-        port = constants.DB_PORT,
-        user = constants.DB_USER,
-        password = constants.DB_PASSWORD,
-        database = constants.DB_NAME
+        host = DB_SERVER,
+        port = DB_PORT,
+        user = DB_USER,
+        password = DB_PASSWORD,
+        database = DB_NAME
     )
 except psycopg2.Error as e:
-    print (f'Can not connect to the postgress database "{constants.DB_NAME}". Make sure database server is running')
+    print (f'Can not connect to the postgress database "{DB_NAME}". Make sure database server is running')
     print (e)
 else:
-    print (f'Connection to database "{constants.DB_NAME}" stablished. Listening at port {constants.DB_PORT}')
+    print (f'Connection to database "{DB_NAME}" stablished. Listening at port {DB_PORT}')
 
 
 # In[ ]:
@@ -189,9 +208,11 @@ finally:
 
 
 # Keep up to date master dataset
+MASTER_CSV_FILE = os.getenv('MASTER_CSV_URL')
+
 try:
     rowcount, columns, rows = sqlquery.select_all_matches(connection)
-    with(open(constants.MASTER_CSV_URL, mode='w',newline="") as file):
+    with(open(MASTER_CSV_FILE, mode='w',newline="") as file):
         writer = csv.writer(file)
         # write column names
         writer.writerow(columns)
