@@ -20,6 +20,7 @@ import numpy as np
 import psycopg2
 import csv
 import os
+import subprocess
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -231,6 +232,9 @@ finally:
 
 
 # Keep up to date Kaggle dataset
+result = subprocess.run(['kaggle','datasets', 'version','-p', '../../dataset','-m "Python ETL Automated Upload"'], capture_output=True, text=True)
+print("Python ETL Automated Kaggle Upload")
+print(result.stdout)
 
 
 # In[ ]:

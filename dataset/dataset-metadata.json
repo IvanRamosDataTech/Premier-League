@@ -1,0 +1,39 @@
+{
+  "id": "ajaxianazarenka/premier-league",
+  "id_no": 4538513,
+  "datasetSlugNullable": "premier-league",
+  "ownerUserNullable": "ajaxianazarenka",
+  "usabilityRatingNullable": 1.0,
+  "titleNullable": "Premier League",
+  "subtitleNullable": "All matches from Season 1993-1994 up to date",
+  "descriptionNullable": "The English Premier League is the most popular and highest level football league in the world.\nThis dataset contains all games from new era of English Professional Football Soccer called Premier League (before 1993, it was a different competition system called English Football League).\nData set gets updated weekly according  to new results after weekend games.\n\n-  All matches from season 1993-1994 up to date.\n- Matches include statistics when possible\n- Matches includes basic Bet356 odds when possible, including expected average goal per match.\n\n**Inspiration**\nDevelop a data analysis System with up to date match results that answers statistical questions based on \nhistorical results.\n",
+  "datasetId": 4538513,
+  "datasetSlug": "premier-league",
+  "hasDatasetSlug": true,
+  "ownerUser": "ajaxianazarenka",
+  "hasOwnerUser": true,
+  "usabilityRating": 1.0,
+  "hasUsabilityRating": true,
+  "totalViews": 7816,
+  "totalVotes": 27,
+  "totalDownloads": 1506,
+  "title": "Premier League",
+  "hasTitle": true,
+  "subtitle": "All matches from Season 1993-1994 up to date",
+  "hasSubtitle": true,
+  "description": "The English Premier League is the most popular and highest level football league in the world.\nThis dataset contains all games from new era of English Professional Football Soccer called Premier League (before 1993, it was a different competition system called English Football League).\nData set gets updated weekly according  to new results after weekend games.\n\n-  All matches from season 1993-1994 up to date.\n- Matches include statistics when possible\n- Matches includes basic Bet356 odds when possible, including expected average goal per match.\n\n**Inspiration**\nDevelop a data analysis System with up to date match results that answers statistical questions based on \nhistorical results.\n",
+  "hasDescription": true,
+  "isPrivate": false,
+  "keywords": [
+    "football"
+  ],
+  "licenses": [
+    {
+      "nameNullable": "MIT",
+      "name": "MIT",
+      "hasName": true
+    }
+  ],
+  "collaborators": [],
+  "data": []
+}
