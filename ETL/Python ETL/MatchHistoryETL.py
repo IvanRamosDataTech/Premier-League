@@ -54,13 +54,43 @@ website_frame = pd.read_csv(constants.CSV_SOURCE_URL)
 
 # Remove unwanted columns
 
-unwanted_cols = ["Div", "BWH", "BWD", "BWA", "IWH", "IWD", "IWA", "PSH", "PSD", "PSA", "WHH", "WHD", "WHA", "VCH", "VCD", "VCA",
-                 "P>2.5", "P<2.5","AHh", "B365AHH", "B365AHA", "PAHH", "PAHA", "MaxAHH", "MaxAHA", "AvgAHH", "AvgAHA", "B365CH",
-                 "B365CD", "B365CA", "BWCH", "BWCD", "BWCA", "IWCH", "IWCD", "IWCA", "PSCH", "PSCD", "PSCA", "WHCH", "WHCD", "WHCA",
-                 "VCCH", "VCCD", "VCCA", "MaxCH", "MaxCD", "MaxCA", "AvgCH", "AvgCD", "AvgCA", "B365C>2.5", "B365C<2.5", "PC>2.5",
-                 "PC<2.5", "MaxC>2.5", "MaxC<2.5", "AvgC>2.5", "AvgC<2.5", "AHCh", "B365CAHH", "B365CAHA", "PCAHH", "PCAHA", "MaxCAHH",
-                 "MaxCAHA", "AvgCAHH", "AvgCAHA"]
-
+unwanted_cols = [
+ 'Div',
+ '1XBA',
+ '1XBCA',
+ '1XBCD',
+ '1XBCH',
+ '1XBD',
+ '1XBH',
+ 'BFA',
+ 'BFCA',
+ 'BFCD',
+ 'BFCH',
+ 'BFD',
+ 'BFE<2.5',
+ 'BFE>2.5',
+ 'BFEA',
+ 'BFEAHA',
+ 'BFEAHH',
+ 'BFEC<2.5',
+ 'BFEC>2.5',
+ 'BFECA',
+ 'BFECAHA',
+ 'BFECAHH',
+ 'BFECD',
+ 'BFECH',
+ 'BFED',
+ 'BFEH',
+ 'BFH',
+ 'AHh', 'B365AHH', 
+       'B365AHA', 'PAHH', 'PAHA', 'MaxAHH', 'MaxAHA', 'AvgAHH', 'AvgAHA',
+       'B365CH', 'B365CD', 'B365CA', 'BWCH', 'BWCD', 'BWCA', 'PSCH', 'PSCD',
+       'PSCA', 'WHCH', 'WHCD', 'WHCA', 'MaxCH', 'MaxCD', 'MaxCA', 'AvgCH',
+       'AvgCD', 'AvgCA', 'B365C>2.5', 'B365C<2.5', 'PC>2.5', 'PC<2.5',
+       'MaxC>2.5', 'MaxC<2.5', 'AvgC>2.5', 'AvgC<2.5', 'AHCh', 'B365CAHH',
+       'B365CAHA', 'PCAHH', 'PCAHA', 'MaxCAHH', 'MaxCAHA', 'AvgCAHH',
+       'AvgCAHA','BWH', 'BWD', 'BWA', 'PSH', 'P>2.5', 'P<2.5',
+       'PSD', 'PSA', 'WHH', 'WHD', 'WHA']
 website_frame.drop(columns = unwanted_cols, inplace = True)
 
 
@@ -197,7 +227,7 @@ try:
         rowsAffected = cursor.rowcount
         connection.commit()
 except psycopg2.Error as e:
-    print (f'Can not connect to the postgress database "{constants.DB_NAME}". Make sure database server is running')
+    print (f'Can not connect to the postgress database "{DB_NAME}". Make sure database server is running')
     print (e)
 else:
     print (f"New Rows in Match History: {rowsAffected}")
