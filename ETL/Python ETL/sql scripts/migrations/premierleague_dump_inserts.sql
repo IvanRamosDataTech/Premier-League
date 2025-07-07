@@ -17,7 +17,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: active_locks; Type: VIEW; Schema: public; Owner: admin
+-- Name: active_locks; Type: VIEW; Schema: public; Owner: postgres
 --
 
 CREATE VIEW public.active_locks AS
@@ -35,14 +35,14 @@ CREATE VIEW public.active_locks AS
   ORDER BY t.schemaname, t.relname;
 
 
-ALTER VIEW public.active_locks OWNER TO admin;
+ALTER VIEW public.active_locks OWNER TO postgres;
 
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: fixtures; Type: TABLE; Schema: public; Owner: admin
+-- Name: fixtures; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.fixtures (
@@ -52,10 +52,10 @@ CREATE TABLE public.fixtures (
 );
 
 
-ALTER TABLE public.fixtures OWNER TO admin;
+ALTER TABLE public.fixtures OWNER TO postgres;
 
 --
--- Name: match_history; Type: TABLE; Schema: public; Owner: admin
+-- Name: match_history; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.match_history (
@@ -105,17 +105,17 @@ CREATE TABLE public.match_history (
 );
 
 
-ALTER TABLE public.match_history OWNER TO admin;
+ALTER TABLE public.match_history OWNER TO postgres;
 
 --
--- Name: TABLE match_history; Type: COMMENT; Schema: public; Owner: admin
+-- Name: TABLE match_history; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON TABLE public.match_history IS 'All matches in Premier League History';
 
 
 --
--- Data for Name: fixtures; Type: TABLE DATA; Schema: public; Owner: admin
+-- Data for Name: fixtures; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 INSERT INTO public.fixtures VALUES ('2024-2025_Man United_Fulham', 1, '16/08/2024 20:00');
@@ -501,7 +501,7 @@ INSERT INTO public.fixtures VALUES ('2024-2025_Wolves_Brentford', 38, '25/05/202
 
 
 --
--- Data for Name: match_history; Type: TABLE DATA; Schema: public; Owner: admin
+-- Data for Name: match_history; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 INSERT INTO public.match_history VALUES ('1993-1994_Arsenal_Coventry', '1993-1994', 1, '1993-08-14', NULL, 'Arsenal', 'Coventry', 0, 3, 'A', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 3);
@@ -12667,7 +12667,7 @@ INSERT INTO public.match_history VALUES ('2024-2025_Wolves_Brentford', '2024-202
 
 
 --
--- Name: fixtures fixtures_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+-- Name: fixtures fixtures_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.fixtures
@@ -12675,7 +12675,7 @@ ALTER TABLE ONLY public.fixtures
 
 
 --
--- Name: match_history match_history_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+-- Name: match_history match_history_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.match_history
